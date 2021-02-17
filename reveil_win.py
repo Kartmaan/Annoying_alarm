@@ -86,6 +86,26 @@ class Ui_MainWindow(object):
         self.button_validation.setFont(font)
         #self.button_validation.setObjectName("pushButton")
 
+        # Green LED light
+        self.green_light = QtWidgets.QLabel(self.centralwidget)
+        self.green_light.setGeometry(QtCore.QRect(473, 190, 35, 35))
+        self.green_light.setEnabled(False)
+        self.green_light.setText("")
+        self.green_light.setPixmap(QtGui.QPixmap("./Files/led_green.png"))
+        self.green_light.setScaledContents(True)
+        #self.led_light.hide()
+        #self.green_light.setObjectName("label")
+
+        # Orange LED light
+        self.orange_light = QtWidgets.QLabel(self.centralwidget)
+        self.orange_light.setGeometry(QtCore.QRect(473, 190, 35, 35))
+        self.orange_light.setEnabled(True)
+        self.orange_light.setText("")
+        self.orange_light.setPixmap(QtGui.QPixmap("./Files/led_orange.png"))
+        self.orange_light.setScaledContents(True)
+        self.orange_light.hide()
+        #self.orange_light.setObjectName("label")
+
         # Label operator sign
         self.label_operator = QtWidgets.QLabel(self.centralwidget)
         self.label_operator.setGeometry(QtCore.QRect(120, 350, 21, 21))
@@ -119,6 +139,7 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit.setGeometry(QtCore.QRect(150, 340, 51, 41))
+        self.lineEdit.setEnabled(False)
         self.lineEdit.setFont(font)
         self.lineEdit.setValidator(self.onlyInt)
         self.lineEdit.setMaxLength(3)
@@ -159,27 +180,6 @@ class Ui_MainWindow(object):
         #self.label_instruc.setObjectName("label_7")
 
         MainWindow.setCentralWidget(self.centralwidget)
-        #self.menubar = QtWidgets.QMenuBar(MainWindow)
-        #self.menubar.setGeometry(QtCore.QRect(0, 0, 723, 21))
-        #self.menubar.setObjectName("menubar")
-        #MainWindow.setMenuBar(self.menubar)
-
-        #self.retranslateUi(MainWindow)
-        #QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    #def retranslateUi(self, MainWindow):
-    #    _translate = QtCore.QCoreApplication.translate
-        #MainWindow.setWindowTitle(_translate("MainWindow", "Reveil pas sympa"))
-        #self.label_its.setText(_translate("MainWindow", "IL EST :"))
-        #self.label_currTime.setText(_translate("MainWindow", "13:48:58"))
-        #self.label_ringsAt.setText(_translate("MainWindow", "SONNE A :"))
-        #self.button_validation.setText(_translate("MainWindow", "VALIDER"))
-        #self.label_title.setText(_translate("MainWindow", "REVEIL PAS SYMPA"))
-        #self.label_operator.setText(_translate("MainWindow", " - "))
-        #self.button_stop.setText(_translate("MainWindow", "STOP"))
-        #self.label_equal.setText(_translate("MainWindow", "="))
-        #self.label_instruc.setText(_translate("MainWindow", "Résoudre cette équation pour éteindre l\'alarme"))
-
 
 if __name__ == "__main__":
     import sys

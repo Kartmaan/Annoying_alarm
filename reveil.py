@@ -6,17 +6,21 @@ import threading
 
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QMessageBox
+import simpleaudio as sa
 
 from reveil_win import Ui_MainWindow
 
-""" Total threads :
-1/ thd.time : link to curr_time() -> Current time display
-2/ thd.wait : link to waiting() -> Wait to ring
-3/ thd.lcd : link to lcd_numbers -> Rolling numbers
+""" Threads :
+1/ thd_time : link to curr_time() -> Current time display
+2/ thd_wait : link to waiting() -> Wait to ring
+3/ thd_lcd : link to lcd_numbers -> Rolling equation numbers
+4/ thd_ring : link to alarm() -> Play alarm sound
+5/ thd_blink : link to blinking_light() -> LED blinking during alarm
 """
 
 run = True
 waiting = 0
+ring = False
 unknown_x = None
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -67,19 +71,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.thd_wait = threading.Thread(target=self.waiting)
         self.thd_wait.start()
-
-        #if waiting == None:
-        #    waiting = True
-        #if waiting == True:
-        #    waiting = False
-
-        #self.thd_lcd = threading.Thread(target=self.lcd_numbers)
-        #self.thd_lcd.start()
     
     def stop(self):
         """ Button stop behaviour """
 
+        global ring
+
         self.button_validation.setEnabled(True)
+        ring = False
 
         # Reinitialisations
         self.button_stop.setEnabled(False)
@@ -87,11 +86,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lcd_res.setProperty("intValue", 0)
         self.label_operator.setText(".")
         self.lineEdit.clear()
+        self.green_light.setEnabled(False)
+        self.orange_light.hide()
+        self.lineEdit.setEnabled(False)
     
     def waiting(self):
         """ Waiting for the ring """
 
-        global run, waiting # Test
+        global run, waiting, ring # Test
+
+        self.green_light.setEnabled(True)
 
         #if waiting == 0:
         #    waiting = True
@@ -117,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         while ring == False: 
             today = datetime.now()
             currHour = today.strftime("%H:%M")
-            print(f"curr = {currHour}, targ = {edited_time}")
+            #print(f"curr = {currHour}, targ = {edited_time}")
 
             if run == False or waiting == False: # TEST
                 break
@@ -126,6 +130,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 ring == True
                 self.button_validation.setEnabled(False)
                 print("RING !")
+
+                self.thd_ring = threading.Thread(target=self.alarm)
+                self.thd_ring.start()
+
+                self.thd_blink = threading.Thread(target=self.blinking_light)
+                self.thd_blink.start()
+
                 self.equation_gen()
                 waiting = False # TEST
                 break
@@ -133,6 +144,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else :
                 time.sleep(1)
                 continue
+    
+    def alarm(self):
+        """ Play alarm sound """
+
+        global ring
+        ring = True 
+
+        filename = './Files/alarm.wav'
+        sound = sa.WaveObject.from_wave_file(filename)
+
+        while ring == True:
+            play = sound.play()
+            play.wait_done()
+    
+    def blinking_light(self):
+        """ Blinking LED light when alarm is ON """
+
+        global ring
+
+        self.green_light.setEnabled(False)
+
+        while ring:
+            self.orange_light.show()
+            time.sleep(0.3)
+            self.orange_light.hide()
+            time.sleep(0.3)
     
     def equation_gen(self):
         """ Generate the equation """
@@ -144,15 +181,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if op == "+":
             self.label_operator.setText(op)
-            a = random.randint(10,99)
-            x = random.randint(10,99)
+            a = random.randint(10,299)
+            x = random.randint(10,299)
             res = a + x
 
         if op == "-":
             self.label_operator.setText(op)
             while True:
-                frst = random.randint(10,99)
-                scnd = random.randint(10,99)
+                frst = random.randint(10,299)
+                scnd = random.randint(10,299)
                 if abs(frst-scnd) < 8:
                     continue
                 else:
@@ -175,16 +212,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         """ Get the choice of the unknown in the equation """
 
         choice = self.lineEdit.text()
-        print(choice)
+        #print(choice)
         if choice == str(unknown_x):
-            print("Match")
+            #print("Match")
             self.button_stop.setEnabled(True)
         else:
-            print("No match")
+            #print("No match")
             self.button_stop.setEnabled(False)
     
     def lcd_numbers(self, a, res):
-        """ Rolling numbers """
+        """ Rolling equation numbers """
 
         i = 0
         while i<20:
@@ -201,21 +238,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             i+=1
             time.sleep(0.05)
         self.lcd_res.setProperty("intValue", res)
+
+        self.lineEdit.setEnabled(True)
     
     def closeEvent(self, event):
         """ When user wants to quit """
 
-        global run
+        global run, ring
 
-        reply = QMessageBox.question(self, 'Window Close', 'Exit the program ?', 
-        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if ring == False:
 
-        if reply == QMessageBox.Yes:
-            event.accept()
-            run = False
-            print('Window closed')
-        else:
-            event.ignore()
+            reply = QMessageBox.question(self, 'Window Close', 'Exit the program ?', 
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+            if reply == QMessageBox.Yes:
+                event.accept()
+                run = False
+                print('Window closed')
+            else:
+                event.ignore()
+        
+        if ring == True :
+
+            reply = QMessageBox.question(self, 'Window Close', "O93od ghadi !", 
+            QMessageBox.No | QMessageBox.No, QMessageBox.No)
+
+            if reply == QMessageBox.No:
+                event.ignore()
+            else:
+                event.ignore()
 
 if __name__ == "__main__" :
 	app = QtWidgets.QApplication(sys.argv) # []
