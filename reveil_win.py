@@ -22,8 +22,8 @@ class Ui_MainWindow(object):
         self.timeEdit.setFont(font)
         self.timeEdit.setAlignment(QtCore.Qt.AlignCenter)
         self.timeEdit.setTime(QtCore.QTime(13, 58, 0))
-        x = self.timeEdit.time().hour()
-        print(x)
+        #x = self.timeEdit.time().hour()
+        #print(x)
         #self.timeEdit.setObjectName("timeEdit")
 
         # Horizontal line
@@ -89,7 +89,7 @@ class Ui_MainWindow(object):
         # Label operator sign
         self.label_operator = QtWidgets.QLabel(self.centralwidget)
         self.label_operator.setGeometry(QtCore.QRect(120, 350, 21, 21))
-        self.label_operator.setText("-")
+        self.label_operator.setText(".")
         font = QtGui.QFont()
         font.setPointSize(20)
         self.label_operator.setFont(font)
@@ -121,18 +121,19 @@ class Ui_MainWindow(object):
         self.lineEdit.setGeometry(QtCore.QRect(150, 340, 51, 41))
         self.lineEdit.setFont(font)
         self.lineEdit.setValidator(self.onlyInt)
+        self.lineEdit.setMaxLength(3)
         #self.lineEdit.setObjectName("lineEdit")
 
         # LCD operation
         self.lcd_oper = QtWidgets.QLCDNumber(self.centralwidget)
         self.lcd_oper.setGeometry(QtCore.QRect(30, 340, 81, 41))
-        self.lcd_oper.setProperty("intValue", 92)
+        self.lcd_oper.setProperty("intValue", 0)
         #self.lcd_oper.setObjectName("lcdNumber")
 
         # LCD result
         self.lcd_res = QtWidgets.QLCDNumber(self.centralwidget)
         self.lcd_res.setGeometry(QtCore.QRect(240, 340, 81, 41))
-        self.lcd_res.setProperty("intValue", 37)
+        self.lcd_res.setProperty("intValue", 0)
         #self.lcd_res.setObjectName("lcdNumber_2")
 
         # Label equal
