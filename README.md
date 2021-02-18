@@ -13,7 +13,8 @@ The green LED indicates that the alarm is now waiting to sound
 ![cap6](https://user-images.githubusercontent.com/11463619/108365482-8ceaf000-71f7-11eb-978c-66785ba8ac48.png)
 
 ## Alarm is ON
-The alarm sounds and an equation is generated randomly, this equation can be the addition or subtraction of two numbers ranging from 10 to 299
+The alarm sounds and an equation is generated randomly. 
+This equation can be the addition or subtraction of two numbers ranging from 10 to 299
 
 ![cap2](https://user-images.githubusercontent.com/11463619/108364828-ccfda300-71f6-11eb-8f19-a9741b64f031.png)
 
