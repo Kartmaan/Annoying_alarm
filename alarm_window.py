@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setWindowTitle("Reveil pas sympa")
+        MainWindow.setWindowTitle("Annoying Alarm")
 
         MainWindow.resize(723, 459)
         MainWindow.setMinimumSize(QtCore.QSize(723, 459))
@@ -36,7 +36,7 @@ class Ui_MainWindow(object):
         # Title label
         self.label_title = QtWidgets.QLabel(self.centralwidget)
         self.label_title.setGeometry(QtCore.QRect(140, 20, 431, 31))
-        self.label_title.setText("REVEIL PAS SYMPA")
+        self.label_title.setText("ANNOYING ALARM")
         font = QtGui.QFont()
         font.setFamily("Cascadia Mono Light")
         font.setPointSize(20)
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         # Label "it's"
         self.label_its = QtWidgets.QLabel(self.centralwidget)
         self.label_its.setGeometry(QtCore.QRect(60, 140, 111, 31))
-        self.label_its.setText("IL EST :")
+        self.label_its.setText("IT'S :")
         font = QtGui.QFont()
         font.setPointSize(16)
         font.setItalic(True)
@@ -69,7 +69,7 @@ class Ui_MainWindow(object):
         # Label "rings at"
         self.label_ringsAt = QtWidgets.QLabel(self.centralwidget)
         self.label_ringsAt.setGeometry(QtCore.QRect(320, 140, 116, 31))
-        self.label_ringsAt.setText("SONNER A  :")
+        self.label_ringsAt.setText("RING AT :")
         font = QtGui.QFont()
         font.setPointSize(16)
         font.setItalic(True)
@@ -80,7 +80,7 @@ class Ui_MainWindow(object):
         # Button validation
         self.button_validation = QtWidgets.QPushButton(self.centralwidget)
         self.button_validation.setGeometry(QtCore.QRect(520, 180, 161, 51))
-        self.button_validation.setText("VALIDER")
+        self.button_validation.setText("VALIDATE")
         font = QtGui.QFont()
         font.setPointSize(17)
         self.button_validation.setFont(font)
@@ -170,7 +170,7 @@ class Ui_MainWindow(object):
         # Label instruction
         self.label_instruc = QtWidgets.QLabel(self.centralwidget)
         self.label_instruc.setGeometry(QtCore.QRect(0, 260, 361, 31))
-        self.label_instruc.setText("Résoudre cette équation pour désactiver l'alarme")
+        self.label_instruc.setText("Solve this equation to turn off the alarm")
         font = QtGui.QFont()
         font.setFamily("Helonia")
         font.setPointSize(11)

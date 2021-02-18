@@ -293,7 +293,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # When alarm is OFF, user can quit
         if ring == False: # Alarm is OFF
 
-            reply = QMessageBox.question(self, 'Window Close', 'Akahaw ?', 
+            reply = QMessageBox.question(self, 'Window Close', 'Quit ?', 
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
@@ -305,8 +305,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # When alarm is ON, user can't quit
         if ring == True : # Alarm is ON
-
-            reply = QMessageBox.question(self, 'Window Close', "O93od ghadi...", 
+            reply = QMessageBox.question(self, 'Window Close', 
+            f"NO YOU CAN'T !\nSolve the equation first.", 
             QMessageBox.No | QMessageBox.No, QMessageBox.No)
 
             if reply == QMessageBox.No:
