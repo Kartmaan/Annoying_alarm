@@ -1,3 +1,17 @@
+# -*- coding: utf-8 -*-
+
+""" 
+A pesky alarm with a horrible ringing that can only be turned off 
+by solving an equation
+
+Threads :
+1/ thd_time : link to curr_time() -> Current time display
+2/ thd_wait : link to waiting() -> Wait the alarm
+3/ thd_lcd : link to lcd_numbers -> Scrolling equation numbers
+4/ thd_ring : link to alarm() -> Play alarm sound
+5/ thd_blink : link to blinking_light() -> LED blinking during alarm
+"""
+
 import sys
 from datetime import datetime, timedelta
 import time
@@ -8,15 +22,10 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QMessageBox
 import simpleaudio as sa
 
-from reveil_win import Ui_MainWindow
+from alarm_window import Ui_MainWindow
 
-""" Threads :
-1/ thd_time : link to curr_time() -> Current time display
-2/ thd_wait : link to waiting() -> Wait to ring
-3/ thd_lcd : link to lcd_numbers -> Rolling equation numbers
-4/ thd_ring : link to alarm() -> Play alarm sound
-5/ thd_blink : link to blinking_light() -> LED blinking during alarm
-"""
+__author__ = "Kartmaan"
+__version__ = "1.0"
 
 run = True
 waiting = 0
@@ -32,10 +41,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_stop.clicked.connect(self.stop)
         self.lineEdit.textChanged.connect(self.equation_edit)
 
+        # Start of the current time display threading 
         self.thd_time = threading.Thread(target=self.curr_time)
         self.thd_time.start()
 
-        self.set_timeEdit()
+        self.set_timeEdit() # TimeEdit initialisation
     
     def curr_time(self):
         """ Current time display """
@@ -53,7 +63,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 break
     
     def set_timeEdit(self):
-        """ TimeEdit initialisation """
+        """ TimeEdit initialisation
+        Not far from current time """
 
         now = datetime.now()
         later = now + timedelta(minutes = 1)
@@ -62,25 +73,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timeEdit.setTime(QtCore.QTime(hour, minute, 0))
     
     def validation(self):
-        """ Validation button behaviour """
+        """ Validation button behaviour 
+        Starts the waiting for alarm """
+
         global waiting
 
+        """ If user validate while program already waiting for alarm,
+        this wait is canceled to start another one """
         if waiting == True:
             waiting = False
             self.thd_wait.join()
 
+        # Starting the waiting thread
         self.thd_wait = threading.Thread(target=self.waiting)
         self.thd_wait.start()
     
     def stop(self):
-        """ Button stop behaviour """
+        """ Button stop behaviour
+        Stops the alarm and reset some parameters """
 
         global ring
 
+        ring = False # Set alarm OFF
         self.button_validation.setEnabled(True)
-        ring = False
 
-        # Reinitialisations
+        # Reset
         self.button_stop.setEnabled(False)
         self.lcd_oper.setProperty("intValue", 0)
         self.lcd_res.setProperty("intValue", 0)
@@ -91,56 +108,68 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lineEdit.setEnabled(False)
     
     def waiting(self):
-        """ Waiting for the ring """
+        """ Waiting for the alarm
+        Waiting until current time = target time """
 
-        global run, waiting, ring # Test
+        global run, waiting, ring
 
-        self.green_light.setEnabled(True)
+        self.green_light.setEnabled(True) # Green LED ON
 
-        #if waiting == 0:
-        #    waiting = True
+        """ When hour or minute is < 10, timeEdit widget returns
+        something like 9:8 instead of 09:08. To avoid that, in that case, 
+        we add a 0 as a prefix to respect the time syntax. """
 
+        # Get the hour target
         edited_h = self.timeEdit.time().hour()
         if len(str(edited_h)) == 1:
-            x = ["0",str(edited_h)]
+            x = ["0", str(edited_h)]
             edited_h = "".join(x)
-            print(edited_h)
 
+        # Get the minute target
         edited_m = self.timeEdit.time().minute()
         if len(str(edited_m)) == 1:
-            x = ["0",str(edited_m)]
+            x = ["0", str(edited_m)]
             edited_m = "".join(x)
-            print(edited_m)
 
+        # Target time
         edited_time = f"{edited_h}:{edited_m}"
         print(edited_time)
 
-        ring = False
+        ring = False # Alarm is OFF
         waiting = True
 
+        # Waiting until current time = target time
         while ring == False: 
             today = datetime.now()
             currHour = today.strftime("%H:%M")
-            #print(f"curr = {currHour}, targ = {edited_time}")
 
-            if run == False or waiting == False: # TEST
-                break
+            # Aborted wait
+            # run = False : Program quited
+            # waiting = False : Target time changed before alarm
+            if run == False or waiting == False:
+                break # Stop waiting
 
+            # Current time = Targer time
             if currHour == edited_time:
-                ring == True
+                ring == True # Alarm is ON
                 self.button_validation.setEnabled(False)
                 print("RING !")
 
+                # Alarm thread
                 self.thd_ring = threading.Thread(target=self.alarm)
                 self.thd_ring.start()
 
+                # Blinking LED thread
                 self.thd_blink = threading.Thread(target=self.blinking_light)
                 self.thd_blink.start()
 
-                self.equation_gen()
-                waiting = False # TEST
+                self.equation_gen() # Generate an equation
+                waiting = False # Stop waiting but alarm still ON
+                
                 break
             
+            # Current time != target time
+            # Wait continues
             else :
                 time.sleep(1)
                 continue
@@ -154,17 +183,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         filename = './Files/alarm.wav'
         sound = sa.WaveObject.from_wave_file(filename)
 
+        # Play sound while alarm is ON
         while ring == True:
             play = sound.play()
             play.wait_done()
     
     def blinking_light(self):
-        """ Blinking LED light when alarm is ON """
+        """ Blinking LED light when alarm is ON. 
+        Two images of the same dimensions have been superimposed 
+        at the same coordinates : the image of the orange LED in the 
+        foreground and that of the green LED in the background. 
+        The background image (green LED) has been deactivated 
+        to give it the appearance of an off LED (black & white). 
+        Orange LED (foreground) is ON and appears and disappears 
+        intermittently to give the appearance of a blinking LED """
 
         global ring
 
         self.green_light.setEnabled(False)
 
+        # orange_light appears and disappears intermittently
         while ring:
             self.orange_light.show()
             time.sleep(0.3)
@@ -176,20 +214,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         global unknown_x
         
+        minVal = 10
+        maxVal = 299
+
+        # Operator choice
         operators = ["+", "-"]
         op = random.choice(operators)
 
         if op == "+":
             self.label_operator.setText(op)
-            a = random.randint(10,299)
-            x = random.randint(10,299)
+            a = random.randint(minVal, maxVal)
+            x = random.randint(minVal, maxVal)
             res = a + x
 
         if op == "-":
             self.label_operator.setText(op)
             while True:
-                frst = random.randint(10,299)
-                scnd = random.randint(10,299)
+                frst = random.randint(minVal, maxVal)
+                scnd = random.randint(minVal, maxVal)
                 if abs(frst-scnd) < 8:
                     continue
                 else:
@@ -205,35 +247,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         #print(f"{a}{op}{x}={res}")
         self.thd_lcd = threading.Thread(target=self.lcd_numbers, args=(a, res))
         self.thd_lcd.start()
-        #self.lcd_numbers(a, res)
-
 
     def equation_edit(self):
         """ Get the choice of the unknown in the equation """
 
-        choice = self.lineEdit.text()
-        #print(choice)
-        if choice == str(unknown_x):
-            #print("Match")
+        choice = self.lineEdit.text() # Get the enter
+    
+        if choice == str(unknown_x): # Right answer
             self.button_stop.setEnabled(True)
-        else:
-            #print("No match")
+
+        else: # Wrong answer
             self.button_stop.setEnabled(False)
     
     def lcd_numbers(self, a, res):
-        """ Rolling equation numbers """
+        """ Random scrolling through numbers before 
+        displaying the equation """
 
+        # 1st number scrolling
         i = 0
         while i<20:
-            x = random.randint(10,99)
+            x = random.randint(10,299)
             self.lcd_oper.setProperty("intValue", x)
             i+=1
             time.sleep(0.05)
         self.lcd_oper.setProperty("intValue", a)
 
+        # Result number scrolling
         i = 0
         while i<20:
-            x = random.randint(10,99)
+            x = random.randint(10,299)
             self.lcd_res.setProperty("intValue", x)
             i+=1
             time.sleep(0.05)
@@ -246,9 +288,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         global run, ring
 
-        if ring == False:
+        # When alarm is OFF, user can quit
+        if ring == False: # Alarm is OFF
 
-            reply = QMessageBox.question(self, 'Window Close', 'Exit the program ?', 
+            reply = QMessageBox.question(self, 'Window Close', 'Akahaw ?', 
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
             if reply == QMessageBox.Yes:
@@ -258,9 +301,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 event.ignore()
         
-        if ring == True :
+        # When alarm is ON, user can't quit
+        if ring == True : # Alarm is ON
 
-            reply = QMessageBox.question(self, 'Window Close', "O93od ghadi !", 
+            reply = QMessageBox.question(self, 'Window Close', "O93od ghadi...", 
             QMessageBox.No | QMessageBox.No, QMessageBox.No)
 
             if reply == QMessageBox.No:
