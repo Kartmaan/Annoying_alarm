@@ -27,16 +27,18 @@ from alarm_window import Ui_MainWindow
 __author__ = "Kartmaan"
 __version__ = "1.0"
 
-run = True
-waiting = 0
-ring = False
-unknown_x = None
+# Global variables
+run = True # Stop the current time display thread
+waiting = 0 # 1st 0, then boolean
+ring = False # Alarm is ON/OFF
+unknown_x = None # The unknown of the equation to guess
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
 
+        # Connect widgets to their function
         self.button_validation.clicked.connect(self.validation)
         self.button_stop.clicked.connect(self.stop)
         self.lineEdit.textChanged.connect(self.equation_edit)
