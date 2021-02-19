@@ -33,6 +33,6 @@ BTW solving the equation will also allow you to quit this program.
 
 ![cap5](https://user-images.githubusercontent.com/11463619/108364851-d38c1a80-71f6-11eb-8f2a-d622fed8e58f.png)
 
-# Required
+# Requirements
 - PyQt5
 - simpleaudio
