@@ -307,11 +307,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if ring == True : # Alarm is ON
             reply = QMessageBox.question(self, 'Window Close', 
             f"NO YOU CAN'T !\nSolve the equation first.", 
-            QMessageBox.No | QMessageBox.No, QMessageBox.No)
+            QMessageBox.Ok, QMessageBox.Ok)
 
-            if reply == QMessageBox.No:
-                event.ignore()
-            else:
+            if reply == QMessageBox.Ok:
                 event.ignore()
 
 if __name__ == "__main__" :
